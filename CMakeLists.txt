@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 
 project(Extreme-C-Programming)
 
-add_subdirectory(ch01-essential-features)
-# add_subdirectory(ch02-compilation-and-linking)
+# add_subdirectory(ch01-essential-features)
+add_subdirectory(ch02-compilation-and-linking)
 #add_subdirectory(ch03-object-files)
 #add_subdirectory(ch04)
 #add_subdirectory(ch05)

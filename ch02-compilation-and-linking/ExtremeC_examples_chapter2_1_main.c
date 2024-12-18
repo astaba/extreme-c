@@ -18,10 +18,10 @@ int main(int argc, char** argv) {
 
   // Calculating the averages using the 'avg' function
   double average = avg(array, 5, NORMAL);
-  printf("The average: %f\n", average);
+  printf("The average: %g\n", average);
 
   average = avg(array, 5, SQUARED);
-  printf("The squared average: %f\n", average);
+  printf("The squared average: %g\n", average);
 
   return 0;
 }
