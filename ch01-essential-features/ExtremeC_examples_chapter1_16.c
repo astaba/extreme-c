@@ -1,5 +1,5 @@
 // File name: ExtremeC_exampels_chapter1_16.c
-// Description: Example 1.16
+// Description: Dangling pointers
 
 #include <stdio.h>
 #include <stdlib.h>

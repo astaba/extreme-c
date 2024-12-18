@@ -1,27 +1,24 @@
 // File name: ExtremeC_exampels_chapter1_19.c
-// Description: Example 1.19
+// Description: Function pointers
 
 #include <stdio.h>
+#include <stdlib.h>
 
-int sum(int a, int b) {
-  return a + b;
-}
+int sum(int a, int b) { return a + b; }
 
-int subtract(int a, int b) {
-  return a - b;
-}
+int substract(int a, int b) { return a - b; }
 
-int main() {
-  int (*func_ptr)(int, int);
-  func_ptr = NULL;
+int main(int argc, char **argv) {
+  int (*funct_ptr)(int, int) = NULL;
 
-  func_ptr = &sum;
-  int result = func_ptr(5, 4);
-  printf("Sum: %d\n", result);
+  int a = 9;
+  int b = 13;
 
-  func_ptr = &subtract;
-  result = func_ptr(5, 4);
-  printf("Subtract: %d\n", result);
+  funct_ptr = &sum;
+  printf("a + b = %d\n", funct_ptr(a, b));
 
-  return 0;
+  funct_ptr = &substract;
+  printf("a - b = %d\n", funct_ptr(a, b));
+
+  return EXIT_SUCCESS;
 }

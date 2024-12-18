@@ -1,5 +1,5 @@
 // File name: ExtremeC_exampels_chapter1_18.c
-// Description: Example 1.18
+// Description: Passing by value vs passing by reference
 
 #include <stdio.h>
 

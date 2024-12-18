@@ -2,30 +2,27 @@
 // Description: Example 1.4
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#define CMD(NAME) \
-  char NAME ## _cmd[256]  = ""; \
-  strcpy(NAME ## _cmd, #NAME);
+#define CMD(X)                                                                 \
+  char X##_cmd[256];                                                           \
+  strcpy(X##_cmd, #X);
 
-int main(int argc, char** argv) {
-
-  CMD(copy)
+int main(void) {
+  CMD(copy);
   CMD(paste)
   CMD(cut)
 
   char cmd[256];
   scanf("%s", cmd);
 
-  if (strcmp(cmd, copy_cmd) == 0) {
-    // ...
-  }
-  if (strcmp(cmd, paste_cmd) == 0) {
-    // ...
-  }
-  if (strcmp(cmd, cut_cmd) == 0) {
-    // ...
-  }
+  if (strcmp(cmd, copy_cmd) == 0)
+    printf("%s successful\n", copy_cmd);
+  if (strcmp(cmd, paste_cmd) == 0)
+    printf("%s successful\n", paste_cmd);
+  if (strcmp(cmd, cut_cmd) == 0)
+    printf("%s successful\n", cut_cmd);
 
-  return 0;
+  return EXIT_SUCCESS;
 }

@@ -2,14 +2,17 @@
 // Description: Example 1.3
 
 #include <stdio.h>
+#include <stdlib.h>
 
-#define PRINT(a) printf("%d\n", a);
-#define LOOP(v, s, e) for (int v = s; v <= e; v++) {
+#define LOOP(c, i, l) for (int c = i; c < l; c++) {
 #define ENDLOOP }
+#define PRINTF(v) printf("counter = %d\n", v)
 
-int main(int argc, char** argv) {
-  LOOP(counter, 1, 10)
-    PRINT(counter)
+int main(void) {
+  // clang-format off
+  LOOP(counter, 0, 5)
+    PRINTF(counter);
   ENDLOOP
-  return 0;
+  // clang-format on
+  return EXIT_SUCCESS;
 }

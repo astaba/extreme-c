@@ -1,34 +1,34 @@
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(ex1_1.out
+add_executable(ex1_01.out
   ExtremeC_examples_chapter1_1.c
 )
 
-add_executable(ex1_2.out
+add_executable(ex1_02.out
   ExtremeC_examples_chapter1_2.c
 )
 
-add_executable(ex1_3.out
+add_executable(ex1_03.out
   ExtremeC_examples_chapter1_3.c
 )
 
-add_executable(ex1_4.out
+add_executable(ex1_04.out
   ExtremeC_examples_chapter1_4.c
 )
 
-add_executable(ex1_5.out
+add_executable(ex1_05.out
   ExtremeC_examples_chapter1_5.c
 )
 
-add_executable(ex1_6.out
+add_executable(ex1_06.out
   ExtremeC_examples_chapter1_6.c
 )
 
-add_executable(ex1_7.out
+add_executable(ex1_07.out
   ExtremeC_examples_chapter1_7.c
 )
 
-add_executable(ex1_9.out
+add_executable(ex1_09.out
   ExtremeC_examples_chapter1_9.c
 )
 

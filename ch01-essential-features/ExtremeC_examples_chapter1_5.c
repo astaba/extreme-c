@@ -5,26 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VERSION "2.3.4"
+#define VERSION "3.0.2"
+#define LOG_ERROR(format, ...) fprintf(stderr, format, __VA_ARGS__);
 
-#define LOG_ERROR(format, ...) \
-  fprintf(stderr, format, __VA_ARGS__)
-
-int main(int argc, char** argv) {
+int main(int argc, char *argv[]) {
 
   if (argc < 3) {
-    LOG_ERROR("Invalid number of arguments for version %s\n.",
-            VERSION);
-    exit(1);
+    LOG_ERROR("Invalid number of arguments for version %s\n", VERSION)
   }
 
-  if (strcmp(argv[1], "-n") != 0) {
-    LOG_ERROR("%s is a wrong param at index %d for version %s.",
-            argv[1], 1, VERSION);
-    exit(1);
+  if (argc > 2 && strcmp(argv[2], "--norm") != 0) {
+    LOG_ERROR("'%s' is invalid parameter at index %d for version %s\n",
+              argv[2], 2, VERSION)
   }
 
-  // ...
-
-  return 0;
+  return EXIT_SUCCESS;
 }

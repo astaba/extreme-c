@@ -5,3 +5,7 @@ build
 *.out
 *.swp
 .DS_Store
+.cache
+.vscode
+
+expand

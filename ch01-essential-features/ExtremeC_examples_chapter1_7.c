@@ -1,13 +1,25 @@
 // File name: ExtremeC_exampels_chapter1_7.c
 // Description: Example 1.7
 
-#define CONDITION1
+#include "ExtremeC_examples_chapter1_8.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "ExtremeC_examples_chapter1_8.h"
 
-int main(int argc, char** argv) {
-#ifdef CONDITION
-  int i = 0;
+#define INCREMENT
+
+int main(int argc, char **argv) {
+  say_hello();
+
+  int i = 1;
+
+#ifdef INCREMENT
   i++;
+#else
+  i--;
 #endif
-  int j= 0;  
-  return 0;
+
+  printf("%d\n", i);
+
+  return EXIT_SUCCESS;
 }
