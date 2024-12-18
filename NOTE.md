@@ -201,62 +201,6 @@ How to inspect `.o` **relocatable object files** (**ELF** format on linux) or `.
 
 Here’s a comprehensive summary of the possible **artifacts** generated during a build process: **binaries**, **static libraries**, and **dynamic libraries**.
 
-### **1. Binaries (Executable Object Files)**
-
-| **Feature**              | **Description**                                                                 |
-|---------------------------|---------------------------------------------------------------------------------|
-| **Definition**            | An **executable binary** is a file containing machine code that can be directly run by the operating system. |
-| **Produced By**           | **Linking** stage of the build process, combining multiple object files and resolving symbols. |
-| **File Extensions**       | `.out` (Linux default), `.exe` (Windows).                                      |
-| **Characteristics**       | - Fully self-contained; includes all necessary code and data to execute.       |
-|                           | - Contains headers (e.g., ELF, PE) to inform the OS how to load and run it.    |
-| **Advantages**            | - Easy to distribute and execute without dependencies.                        |
-|                           | - No runtime linking or external requirements.                                |
-| **Disadvantages**         | - Larger file size if static linking is used.                                 |
-| **Creation Command**      | `gcc file.o -o executable_name`                                                |
-| **Key Tools**             | `nm`, `readelf`, `objdump` (for analysis).                                    |
-
----
-
-### **2. Static Libraries (Archived Relocatable Object Files)**
-
-| **Feature**              | **Description**                                                                 |
-|---------------------------|---------------------------------------------------------------------------------|
-| **Definition**            | A **static library** is a collection of object files bundled into a single archive file, used at compile/link time. |
-| **Produced By**           | Using the `ar` utility to combine object files.                                |
-| **File Extensions**       | `.a` (Linux), `.lib` (Windows).                                                |
-| **Characteristics**       | - Bundled object files; functions are copied into the executable during linking. |
-|                           | - No dependencies on the library at runtime.                                  |
-| **Advantages**            | - Faster execution as all code is linked into the executable.                 |
-|                           | - No runtime library dependencies.                                            |
-| **Disadvantages**         | - Larger executables because code is duplicated in each linked binary.        |
-|                           | - Updating the library requires recompiling all linked binaries.              |
-| **Creation Command**      | `ar rcs libname.a file1.o file2.o`                                             |
-| **Usage in Compilation**  | `gcc main.c -L. -lname -o program` (use `-L` to specify the library path).     |
-| **Key Tools**             | `ar`, `nm`, `ranlib`.                                                         |
-
----
-
-### **3. Dynamic Libraries (Shared Object Files)**
-
-| **Feature**              | **Description**                                                                 |
-|---------------------------|---------------------------------------------------------------------------------|
-| **Definition**            | A **dynamic library** (shared object) is a file containing reusable machine code that is loaded at runtime by the dynamic linker. |
-| **Produced By**           | Compiling with the `-fPIC` and `-shared` options for position-independent code. |
-| **File Extensions**       | `.so` (Linux), `.dll` (Windows), `.dylib` (macOS).                              |
-| **Characteristics**       | - Functions are loaded into memory and linked when the program starts or on-demand. |
-|                           | - Multiple programs can share the same library in memory.                      |
-| **Advantages**            | - Smaller executables as the code resides in a separate library file.          |
-|                           | - Easy to update: replacing the library automatically updates all binaries using it. |
-| **Disadvantages**         | - Runtime dependency: the executable won't work without the shared library.    |
-|                           | - Slightly slower startup time due to dynamic linking overhead.                |
-| **Creation Command**      | `gcc -shared -fPIC -o libname.so file1.o file2.o`                               |
-| **Usage in Compilation**  | `gcc main.c -L. -lname -o program` (use `-L` for library path).                |
-|                           | Run with `LD_LIBRARY_PATH` if the shared library isn't in the default path.    |
-| **Key Tools**             | `ldd` (list shared dependencies), `nm`, `readelf`.                             |
-
----
-
 ### **Key Differences**
 
 | **Aspect**             | **Binaries**                 | **Static Libraries**          | **Dynamic Libraries**        |
@@ -283,3 +227,315 @@ Here’s a comprehensive summary of the possible **artifacts** generated during 
    - Common in modern systems for performance and modularity.
 
 ---
+
+## Relocatable Object Files
+
+Ref.: Chapter 03_1
+
+```bash
+gcc -c ExtremeC_examples_chapter3_1_funcs.c -o funcs.o
+gcc -c ExtremeC_examples_chapter3_1.c -o main.o
+```
+
+### **What Are Relocatable Object Files?**
+Relocatable object files are intermediate binary files produced by compiling individual source files with the `-c` option in `gcc`. They contain:
+1. **Code**: Machine-level instructions for functions in the source file.
+2. **Data**: Initial values for global variables.
+3. **Symbol Table**: Lists symbols defined in the file and references to external symbols needed for linking.
+4. **Relocation Entries**: Metadata for adjusting addresses during the linking phase.
+
+The instructions and symbols within relocatable object files are not assigned their final memory addresses yet, making them **relocatable**.
+
+---
+
+### **Key Observations from ELF File Analysis**
+
+Ref:  **[See `Makefile`](./ch03-object-files/executable/Makefile)**.
+
+```bash
+readelf -lSh funcs.o
+readelf -lSh main.o
+
+readelf -s funcs.o
+readelf -s main.o
+```
+
+1. **`ELF Header`:**
+   - The file type is `REL (Relocatable file)` and is designed to be linked with other relocatable files to form an executable or shared library.
+   - There are no program headers, indicating this file is not executable or directly loadable into memory.
+
+2. **`Section Headers`:**
+   - `.text`: Contains the machine-level instructions for the functions defined in the file.
+   - `.data` and `.bss`: Represent initialized and uninitialized global variables, respectively.
+   - `.rela.text` and `.rela.eh_frame`: Contain relocation information to adjust addresses during linking.
+
+3. **`Symbol Table` (`.symtab`):**
+   - **Local Symbols**: Symbols private to the file (e.g., sections or source file metadata).
+   - **Global Symbols**: Symbols accessible from other files during linking (e.g., `max`, `max_3` in `funcs.o`, and `main`, `a`, `b` in `main.o`).
+   - Undefined symbols (`UND`): Refer to symbols not defined in the current file but required for linking (e.g., `max` and `max_3` in `main.o`).
+
+4. **Relocation and Addressing:**
+   - Symbols like `main`, `a`, and `b` have placeholder addresses (`0x0` or offsets in sections) in `main.o`, indicating they will be assigned final addresses during the linking stage.
+
+---
+
+### **Conclusion**
+- **Relocatable Object Files**: `funcs.o` and `main.o` are relocatable files generated by compiling individual source files. They are not executable until the linker resolves their symbols and performs relocation.
+- **Purpose**: The linker processes these files, resolves undefined symbols, combines sections (e.g., `.text`, `.data`), and assigns final addresses to create a fully linked executable or library.
+- **Relocation**: The placeholder addresses and relocation entries in the ELF files confirm their nature as intermediate, relocatable binaries
+
+## Executable Object Files
+
+### **1. Binaries (Executable Object Files)**
+
+| **Feature**              | **Description**                                                                 |
+|---------------------------|---------------------------------------------------------------------------------|
+| **Definition**            | An **executable binary** is a file containing machine code that can be directly run by the operating system. |
+| **Produced By**           | **Linking** stage of the build process, combining multiple object files and resolving symbols. |
+| **File Extensions**       | `.out` (Linux default), `.exe` (Windows).                                      |
+| **Characteristics**       | - Fully self-contained; includes all necessary code and data to execute.       |
+|                           | - Contains headers (e.g., ELF, PE) to inform the OS how to load and run it.    |
+| **Advantages**            | - Easy to distribute and execute without dependencies.                        |
+|                           | - No runtime linking or external requirements.                                |
+| **Disadvantages**         | - Larger file size if static linking is used.                                 |
+| **Creation Command**      | `gcc file.o -o executable_name`                                                |
+| **Key Tools**             | `nm`, `readelf`, `objdump` (for analysis).                                    |
+
+---
+
+### Content
+
+Ref:  **[See `Makefile`](./ch03-object-files/executable/Makefile)**.
+
+```bash
+gcc -c main.o funcs.o -o ex3_1.out
+
+readelf -lSh ex3_1.out
+```
+
+Let’s break down **rows 01 to 06** in the *"Section to Segment mapping:"* of the last command output.
+
+---
+
+#### **Row 01: INTERP Segment**
+
+- **Segment Type**: This maps to the `.interp` section, which contains the **interpreter path** (e.g., `/lib64/ld-linux-x86-64.so.2`).  
+- **Purpose**:  
+  - The loader program (dynamic linker) reads this segment to determine which program should load and execute the binary.
+  - This segment is required for position-independent executables (PIE) and dynamically linked executables.
+- **File Properties**:  
+  - It has a **R (read)** flag since it is read-only.  
+  - It is **not executable or writable**.
+
+---
+
+#### **Row 02: LOAD Segment for Metadata and Relocations**
+
+- **Sections Included**:  
+  `.interp`, `.note.gnu.property`, `.note.gnu.build-id`, `.note.ABI-tag`, `.gnu.hash`, `.dynsym`, `.dynstr`, `.gnu.version`, `.gnu.version_r`, `.rela.dyn`
+- **Purpose**:  
+  - This segment includes metadata used by the dynamic linker to resolve symbols and manage dynamic linking.  
+  - Examples:
+    - `.gnu.hash`, `.dynsym`, `.dynstr`: Symbol tables and string tables for dynamic linking.
+    - `.rela.dyn`: Relocation information to patch addresses during dynamic linking.
+    - `.note.*`: Various notes, such as build ID or ABI compatibility information.
+- **File Properties**:  
+  - **R (read)** flag since it contains data required for linking and relocation.  
+  - **Not executable**, as it doesn't contain any code.
+
+---
+
+#### **Row 03: LOAD Segment for Executable Code**
+
+- **Sections Included**:  
+  `.init`, `.plt`, `.plt.got`, `.text`, `.fini`
+- **Purpose**:  
+  - This segment contains **executable code** and stubs required for function calls.
+  - Examples:
+    - `.text`: Contains the main program's compiled machine code.
+    - `.plt`, `.plt.got`: Used for dynamic function calls through the Procedure Linkage Table (PLT).
+    - `.init`/`.fini`: Contain initialization and cleanup routines.
+- **File Properties**:  
+  - **R (read)** and **E (execute)** flags since it contains executable machine instructions.  
+  - **Not writable** to prevent code modification during execution.
+
+---
+
+#### **Row 04: LOAD Segment for Read-Only Data**
+
+- **Sections Included**:  
+  `.rodata`, `.eh_frame_hdr`, `.eh_frame`
+- **Purpose**:  
+  - This segment contains **read-only data** used by the program.
+  - Examples:
+    - `.rodata`: Read-only constants such as string literals.
+    - `.eh_frame` and `.eh_frame_hdr`: Exception handling and stack unwinding metadata for C++ and other languages.
+- **File Properties**:  
+  - **R (read)** flag since it only contains data.  
+  - **Not executable or writable**.
+
+---
+
+#### **Row 05: LOAD Segment for Writable Data and BSS**
+
+- **Sections Included**:  
+  `.init_array`, `.fini_array`, `.dynamic`, `.got`, `.data`, `.bss`
+- **Purpose**:  
+  - This segment contains writable and runtime-initialized data.
+  - Examples:
+    - `.data`: Global and static variables initialized in the program.
+    - `.bss`: Uninitialized global and static variables, which are zeroed at runtime.
+    - `.got`: Global Offset Table, used for position-independent addressing.
+    - `.init_array` and `.fini_array`: Pointers to functions that run during initialization and cleanup phases.
+- **File Properties**:  
+  - **R (read)** and **W (write)** flags since the program writes to this data at runtime.  
+  - **Not executable**.
+
+---
+
+#### **Row 06: DYNAMIC Segment**
+
+- **Sections Included**:  
+  `.dynamic`
+- **Purpose**:  
+  - This segment contains dynamic linking information used by the dynamic loader.
+  - The `.dynamic` section provides tables and pointers that guide the loader in resolving symbols and managing shared libraries.
+  - Example contents:  
+    - Paths to needed shared libraries.
+    - Addresses of PLT and GOT.
+    - Relocation information.
+- **File Properties**:  
+  - **R (read)** and **W (write)** flags since dynamic linking may modify some entries during execution (e.g., runtime symbol resolution).  
+  - **Not executable**.
+
+---
+
+#### **Summary**
+
+These rows describe how the ELF executable's **sections** map into **segments** for the loader to process during execution. Each segment has a distinct purpose: some contain executable code, others contain metadata, and some contain runtime-writable data. The properties of these segments (e.g., `R`, `W`, `X`) are critical for ensuring correct program execution and maintaining security (e.g., by preventing code from being writable).
+
+### Symbols
+
+Ref:  **[ex3_1.out content](./ch03-object-files/executable/read_s_exe.txt)**. 
+
+As you see in the preceding shell box, we have two different symbol tables in an executable object file. The first one, `.dynsym`, contains the symbols that should be resolved when loading the executable, but the second symbol table, `.symtab`, contains all the resolved symbols together with unresolved symbols brought from the dynamic symbol table. In other words, the symbol table contains the unresolved symbols from the dynamic table as well.
+
+As you see, the resolved symbols in the symbol table have absolute corresponding addresses that they have obtained after the linking step. The addresses for `max` and `max_3` symbols are shown in bold font.
+
+## Static Libraries
+
+Ref:  **[See `Makefile`](./ch03-object-files/static/Makefile)**.
+
+### Building and usage
+
+```bash
+# Compiling source files to relocatable object files
+gcc -c ExtremeC_examples_chapter3_2_trigon.c -o trigon.o
+gcc -c ExtremeC_examples_chapter3_2_2d.c -o 2d.o
+gcc -c ExtremeC_examples_chapter3_2_3d.c -o 3d.o
+```
+Reading the manual for `ar` helps but I will explain it in more detail. `ar -rcs` is the most likely command you would use when using a `Makefile` to compile a library. `r` means that if the library already exists, replace the old files within the library with your new files. `c` means create the library if it did not exist. `s` can be seen to mean 'sort' (create a sorted index of) the library, so that it will be indexed and faster to access the functions in the library. Therefore, `rcs` can be seen to mean `replace, create, sort`
+
+```bash
+# Creating the static library file
+ar crs libgeometry.a trigon.o 2d.o 3d.o
+# optionally
+mkdir -p /opt/ geometry
+mv libgeometry.a /opt/ geometry
+
+# Listing the content of the static library file
+ar t /opt/ geometry/ libgeometry.a
+```
+```bash
+gcc -c ExtremeC_examples_chapter3_3. c -o main.o
+
+gcc main.o -L./opt/geometry -lgeometry -lm -o ex3_3.out
+```
+
+### **2. Static Libraries (Archived Relocatable Object Files)**
+
+| **Feature**              | **Description**                                                                 |
+|---------------------------|---------------------------------------------------------------------------------|
+| **Definition**            | A **static library** is a collection of object files bundled into a single archive file, used at compile/link time. |
+| **Produced By**           | Using the `ar` utility to combine object files.                                |
+| **File Extensions**       | `.a` (Linux), `.lib` (Windows).                                                |
+| **Characteristics**       | - Bundled object files; functions are copied into the executable during linking. |
+|                           | - No dependencies on the library at runtime.                                  |
+| **Advantages**            | - Faster execution as all code is linked into the executable.                 |
+|                           | - No runtime library dependencies.                                            |
+| **Disadvantages**         | - Larger executables because code is duplicated in each linked binary.        |
+|                           | - Updating the library requires recompiling all linked binaries.              |
+| **Creation Command**      | `ar rcs libname.a file1.o file2.o`                                             |
+| **Usage in Compilation**  | `gcc main.c -L. -lname -o program` (use `-L` to specify the library path).     |
+| **Key Tools**             | `ar`, `nm`, `ranlib`.                                                         |
+
+---
+
+## Dynamic Libraries
+
+### **Dynamic Libraries (Shared Object Files)**
+
+Ref:  **[See `Makefile`](./ch03-object-files/dynamic/Makefile)**.
+
+| **Feature**              | **Description**                                                                 |
+|---------------------------|---------------------------------------------------------------------------------|
+| **Definition**            | A **dynamic library** (shared object) is a file containing reusable machine code that is loaded at runtime by the dynamic linker. |
+| **Produced By**           | Compiling with the `-fPIC` and `-shared` options for position-independent code. |
+| **File Extensions**       | `.so` (Linux), `.dll` (Windows), `.dylib` (macOS).                              |
+| **Characteristics**       | - Functions are loaded into memory and linked when the program starts or on-demand. |
+|                           | - Multiple programs can share the same library in memory.                      |
+| **Advantages**            | - Smaller executables as the code resides in a separate library file.          |
+|                           | - Easy to update: replacing the library automatically updates all binaries using it. |
+| **Disadvantages**         | - Runtime dependency: the executable won't work without the shared library.    |
+|                           | - Slightly slower startup time due to dynamic linking overhead.                |
+| **Creation Command**      | - Source files must be assembled as **Position Independent Code**               |
+|                           | `gcc -c <each_source_file>.c -fPIC -o <relocatable_file>.o`                         |
+|                           | `gcc -shared <all_relocatable_files>.o -o libname.so`                              |
+| **Usage in Compilation**  | - **Make `-L<path_to_dylib>` does not contain other dynamic or static library** |
+|                           | `gcc main.c -L. -lname -o program` (use `-L` for library path).                |
+|                           | Run with `LD_LIBRARY_PATH` if the shared library isn't in the default path.    |
+| **Key Tools**             | `ldd` (list shared dependencies), `nm`, `readelf`.                             |
+
+---
+
+### **Dynamic Libraries with Lazy Loading (`dlopen` API)**
+
+Ref:  **[See `Makefile`](./ch03-object-files/lazy_loading/Makefile)**.
+
+| **Feature**              | **Description**                                                                                  |
+|---------------------------|--------------------------------------------------------------------------------------------------|
+| **Definition**            | Dynamic libraries loaded at runtime **on-demand** using the `dlfcn.h` API (`dlopen`, `dlsym`, etc.). |
+| **Produced By**           | Compiling source files into position-independent code with `-fPIC` and linking with `-shared`.   |
+| **File Extensions**       | `.so` (Linux), `.dll` (Windows), `.dylib` (macOS).                                              |
+| **Characteristics**       | - Functions and symbols are resolved only when explicitly requested by the program.             |
+|                           | - Allows greater runtime flexibility compared to standard dynamic linking.                      |
+| **Advantages**            | - **Selective Loading**: Only necessary symbols are loaded, saving memory and improving performance. |
+|                           | - **Error Handling**: The program can gracefully handle missing or failing libraries.           |
+|                           | - **Versioning**: Allows runtime decisions about which version of the library to load.          |
+| **Disadvantages**         | - Adds programming complexity due to manual handling of library loading and symbol resolution.  |
+|                           | - Slight runtime performance hit for symbol resolution via `dlsym`.                             |
+| **Creation Command**      | - Compile each source file as **Position Independent Code**                                      |
+|                           |   `gcc -c <source_file>.c -fPIC -o <object_file>.o`                                             |
+| **KEY DIFFERENCE**        | - **Shared library for lazy loading must be linked with any library eventually required by the .so at run time**|
+|                           |   `gcc -shared <all_object_files>.o [-llibraries] -o libname.so`                                          |
+| **Program Usage**         | - Compile the executable with the `-ldl` flag (linker option for dynamic linking).            |
+|                           |   `gcc main.c -ldl -o program`                                                                  |
+| **Key Functions (API)**   | - `dlopen`: Opens the dynamic library.                                                          |
+|                           | - `dlsym`: Resolves and retrieves a symbol (e.g., a function or variable).                      |
+|                           | - `dlerror`: Retrieves error messages related to `dlopen` and `dlsym`.                          |
+|                           | - `dlclose`: Unloads the library from memory.                                                   |
+| **Key Tools**             | - `ldd` (list shared dependencies), `nm`, `readelf`.                                           |
+
+---
+
+### **Command to Compile and Run**
+```bash
+# Compile the shared library
+gcc -c 2d.c 3d.c trigon.c -fPIC -o libgeometry.so
+gcc -shared 2d.o 3d.o trigon.o -lm -o libgeometry.so
+
+# Compile the main program with dlopen API
+gcc main.c -ldl -o ex3_4.out
+```
+
+This table and example illustrate the usage and benefits of lazy loading dynamic libraries in a Linux environment
