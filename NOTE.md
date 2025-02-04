@@ -51,6 +51,7 @@ struct __attribute__((__packed__)) sample {
             <td colspan="6">A <b>translation unit</b> consists of a single source file and all included headers after preprocessing.</td>
         </tr>
         <tr>
+            <td></td>
             <td>Preprocessed source code (<code>.i</code>)</td>
             <td>Source file for a single compilation unit</td>
             <td><code>.i</code></td>
@@ -58,33 +59,33 @@ struct __attribute__((__packed__)) sample {
         </tr>
         <tr>
             <th rowspan="2">Compilation Frontend</th>
-            <td colspan="6">Parses the code into an AST, performs semantic checks, and generates an Intermediate Representation (IR).</td>
+            <td colspan="6">Parses the code into an <b>AST</b>, performs semantic checks, and generates an <b>Intermediate Representation (IR).</b></td>
         </tr>
         <tr>
             <td>Integrated in gcc/clang</td>
             <td>Preprocessed code (<code>.i</code>, <code>.ii</code>)</td>
-            <td>Intermediate Representation (IR) or AST</td>
+            <td>Intermediate Representation (<b>IR</b>) or <b>AST</b></td>
             <td>None</td>
             <td>(Internal step, no separate tool)</td>
         </tr>
         <tr>
-            <th rowspan="2">AST Generation (concept)</th>
-            <td colspan="6">Conherts source code into an AST, representing the syntax and structure of the program.</td>
+            <th rowspan="2"><b>AST</b> Generation (concept)</th>
+            <td colspan="6">Converts source code into an <b>AST</b>, representing the syntax and structure of the program.</td>
         </tr>
         <tr>
             <td><code>clang</code></td>
             <td>Preprocessed source code (<code>.i</code>)</td>
-            <td>Abstract Syntax Tree (AST)</td>
+            <td><b>Abstract Syntax Tree (AST)</b></td>
             <td>None</td>
             <td><code>clang -Xclang -ast-dump -fsyntax-only file.c</code></td>
         </tr>
         <tr>
             <th rowspan="2">Compilation Backend</th>
-            <td colspan="6">Converts preprocessed code (or IR/AST) to architecture-specific assembly code.</td>
+            <td colspan="6">Converts preprocessed code (or <b>IR</b>/<b>AST</b>) to architecture-specific assembly code.</td>
         </tr>
         <tr>
             <td><code>gcc</code>, <code>clang</code></td>
-            <td>AST or IR</td>
+            <td><b>AST</b> or <b>IR</b></td>
             <td>Assembly code</td>
             <td><code>.s</code></td>
             <td><code>gcc -S file.c -o file.s</code></td>
@@ -117,7 +118,7 @@ struct __attribute__((__packed__)) sample {
         </tr>
         <tr>
             <th rowspan="4">Linking</th>
-            <th rowspan="2">Linking</th>
+            <th rowspan="2">Hazardous Linking</th>
             <td colspan="6">Combines relocatable object files (and optional static libraries) and resolves symbols to produce the final executable.</td>
         </tr>
         <tr>
@@ -128,7 +129,7 @@ struct __attribute__((__packed__)) sample {
             <td><code>ld file1.o file2.o -o program</code></td>
         </tr>
         <tr>
-            <th rowspan="2">Simplified Linking</th>
+            <th rowspan="2">Proper Linking</th>
             <td colspan="6">Simplified invocation of ld with extra handling for libraries.</td>
         </tr>
         <tr>
@@ -136,7 +137,7 @@ struct __attribute__((__packed__)) sample {
             <td>Object files and libraries</td>
             <td>Executable binary</td>
             <td><code>.out</code> or <code>.exe</code></td>
-            <td><code>gcc file.o -o program</code></td>
+            <td><code>gcc file.o [-L&lt;path_to_lib&gt; -l&lt;lib&gt;] [-l&lt;other_lib&gt;] -o program</code></td>
         </tr>
     </tbody>
 </table>
@@ -539,3 +540,159 @@ gcc main.c -ldl -o ex3_4.out
 ```
 
 This table and example illustrate the usage and benefits of lazy loading dynamic libraries in a Linux environment
+
+---
+
+## Process Memory Layout
+
+Operating systems allocate memory for processes using a predefined memory layout, which is largely consistent across Unix-like systems. This layout divides memory into distinct segments, each with a specific purpose:
+
+- **BSS Segment**: Stores uninitialized data.  
+- **Data Segment**: Holds initialized global and static variables.  
+- **Code (Text) Segment**: Contains the program's executable instructions.  
+- **Heap Segment**: Dynamically allocates memory at runtime.  
+- **Stack Segment**: Manages function calls and local variables.  
+
+These segments collectively define the memory structure of a process.
+
+When creating a process, operating systems allocate memory and apply this predefined layout. Some segments are static, originating from the executable object file, while others are dynamic, created during runtime. This memory structure is consistent across processes and includes:
+
+1. **Static Memory Layout**: Defined at compile time, storing instructions and predefined data.  
+2. **Dynamic Memory Layout**: Built during execution, reflecting allocations and modifications by the program logic.
+
+Executable object files provide a static blueprint with predefined segments, including code and initialized data. However, processes are dynamic entities that evolve as they execute. The dynamic layout varies with each execution, shaped by runtime behavior and memory allocations. Tools are available in Unix-like systems to inspect both static and dynamic memory layouts, enabling a deeper understanding of a process's structure during execution.
+
+---
+
+### Probing Static Memory Layout  
+
+Static memory and dynamic memory differ in origin and how they can be observed. **Static memory** is determined during compilation and encoded into the executable object file. It includes segments such as the text, data, and BSS, which are relatively fixed. **Dynamic memory**, in contrast, is allocated at runtime, making it more variable and requiring tools like `/proc/<pid>/maps` to inspect.  
+
+#### Tools for Observing Static Memory Layout  
+
+- **`size` Command**:  
+  This utility gives an overview of the static memory layout of an executable. It shows the sizes of the text, data, and BSS segments in bytes, providing a quick summary of memory usage.  
+
+- **BSS Segment**:  
+  The BSS segment holds uninitialized variables. While its size is shown by `size file.out`, its content is not stored in the executable file, as it is initialized to zero at runtime.  
+
+- **Data Segment**:  
+  This segment contains initialized global and static variables. You can observe its size using `size file.out` and inspect its content with `objdump -s -j .data file.out`.  
+
+- **Text Segment**:  
+  The text segment stores the executable code. Tools like `objdump -S file.out` allow you to disassemble and examine the assembly instructions in the text segment, providing insights into how the program logic is encoded.  
+
+These tools and segments collectively enable a deeper understanding of an executable's static memory layout
+
+---
+
+### Probing dynamic memory layout
+
+The `maps` file in `/proc/<pid>` provides a detailed view of the memory layout of a process. Each line represents a memory region (or segment) in the process's address space, specifying its permissions, offset, associated file, and purpose. Let's relate it to the **static and dynamic memory layout** of a typical process:
+
+```bash
+$ ./ex4_7-linux.out &
+[1] 1040651
+Address: 0x5559d9ff42a0
+
+$ cat /proc/<pid>/maps
+5559c435c000-5559c435d000 r--p 00000000 08:20 91911     /home/.../ex4_7-linux.out
+5559c435d000-5559c435e000 r-xp 00001000 08:20 91911     /home/.../ex4_7-linux.out
+5559c435e000-5559c435f000 r--p 00002000 08:20 91911     /home/.../ex4_7-linux.out
+5559c435f000-5559c4360000 r--p 00002000 08:20 91911     /home/.../ex4_7-linux.out
+5559c4360000-5559c4361000 rw-p 00003000 08:20 91911     /home/.../ex4_7-linux.out
+5559d9ff4000-5559da015000 rw-p 00000000 00:00 0         [heap]
+7f72e633f000-7f72e6342000 rw-p 00000000 00:00 0
+7f72e6342000-7f72e636a000 r--p 00000000 08:20 1178755   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f72e636a000-7f72e64f2000 r-xp 00028000 08:20 1178755   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f72e64f2000-7f72e6541000 r--p 001b0000 08:20 1178755   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f72e6541000-7f72e6545000 r--p 001fe000 08:20 1178755   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f72e6545000-7f72e6547000 rw-p 00202000 08:20 1178755   /usr/lib/x86_64-linux-gnu/libc.so.6
+7f72e6547000-7f72e6554000 rw-p 00000000 00:00 0
+7f72e655d000-7f72e655f000 rw-p 00000000 00:00 0
+7f72e655f000-7f72e6560000 r--p 00000000 08:20 1178752   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f72e6560000-7f72e658b000 r-xp 00001000 08:20 1178752   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f72e658b000-7f72e6595000 r--p 0002c000 08:20 1178752   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f72e6595000-7f72e6597000 r--p 00036000 08:20 1178752   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7f72e6597000-7f72e6599000 rw-p 00038000 08:20 1178752   /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+7fffdaafa000-7fffdab1c000 rw-p 00000000 00:00 0         [stack]
+7fffdabed000-7fffdabf1000 r--p 00000000 00:00 0         [vvar]
+7fffdabf1000-7fffdabf3000 r-xp 00000000 00:00 0         [vdso]
+```
+---
+
+#### **Fields in `/proc/<pid>/maps`**
+Each entry has the following structure:
+```
+[start_addr]-[end_addr] perms offset dev inode pathname
+```
+
+- **`[start_addr]-[end_addr]`**: The virtual memory range occupied by the segment.
+- **`perms`**: Permissions (read, write, execute, private/shared).
+- **`offset`**: Offset in the file or shared object (useful for mapped files).
+- **`dev` and `inode`**: Device and inode of the file (if applicable).
+- **`pathname`**: Path to the file or identifier for the memory region.
+
+---
+
+#### **Mapping to Process Memory Segments**
+
+---
+
+#### **Static vs. Dynamic Memory Layout**
+
+| **Memory Segment**       | **Static Mappings**                                | **Dynamic Mappings**                              |
+|---------------------------|----------------------------------------------------|--------------------------------------------------|
+| **Text Segment**          | `.text` of the executable                         | `.text` of shared libraries                     |
+| **Data Segment**          | `.data` and `.bss` of the executable              | `.data` and `.bss` of shared libraries          |
+| **Heap**                  | Dynamically expands (`sbrk`/`mmap`)               | Dynamically expands during execution            |
+| **Stack**                 | Fixed at runtime, grows dynamically (downwards)   | Same, dynamically changes during execution      |
+| **Shared Libraries**      | Not part of the executable's static structure      | Dynamically loaded and linked                   |
+| **Dynamic Loader (ld)**   | Not part of the static executable                  | Loaded to resolve symbols at runtime            |
+
+---
+
+### **Summary of `maps`**
+The `maps` output provides a detailed view of the runtime memory layout of the process. It illustrates how the ELF executable and dynamic libraries map their respective `.text`, `.data`, and `.bss` sections into memory, alongside runtime-allocated segments like the heap and stack. The file mappings and permissions directly relate to the roles of static and dynamic memory in the process lifecycle
+
+## Stack and Heap
+
+### Memory management in constraint environment: Cache friendly code
+
+The provided [ExtremeC_example5_6.c](ch05-stack-and-heap/ExtremeC_example5_6.c) demonstrates the performance difference between CPU cache-friendly and non-cache-friendly code. It does so by iterating over a matrix in two different orders:
+
+1. **Cache-friendly (row-major)**:
+   - Accesses memory sequentially in row-major order, aligning with how data is laid out in memory.
+   - Likely to take advantage of CPU cache locality.
+
+2. **Non-cache-friendly (column-major)**:
+   - Accesses memory in column-major order, which does not align with how data is laid out.
+   - Likely to result in more cache misses, leading to slower performance.
+
+#### Steps to Test with `time`
+
+1. **Run the Sum**:
+   Use the `friendly-sum` and `not-friendly-sum` operation and measure the execution time with the `time` utility:
+   ```bash
+   time ./cache_test friendly-sum 20000 20000
+   time ./cache_test not-friendly-sum 20000 20000
+   ```
+2. **Compare Results**:
+   Compare the real, user, and sys times reported by `time`. Typically:
+   - **Friendly Sum**: Faster due to fewer cache misses.
+   - **Not-Friendly Sum**: Slower due to frequent cache misses.
+
+#### Explanation of Results
+- **Cache Line and Locality**:
+  - Memory is fetched in chunks called cache lines (typically 64 bytes). Sequential access leverages spatial locality, reducing cache misses.
+  - Non-sequential access (column-major) breaks spatial locality, forcing frequent cache line replacements.
+
+- **Matrix Layout in Memory**:
+  - In C, 2D arrays are stored in row-major order. Accessing elements row by row matches this layout, improving performance.
+
+#### Insights
+- The **cache-friendly sum** completes faster due to fewer cache misses.
+- The **non-cache-friendly sum** takes longer as it jumps across memory rows repeatedly, resulting in a higher number of cache misses and slower performance.
+
+#### Note:
+You can experiment with different matrix sizes or modify the `time` utility's verbosity using flags like `-v` to capture detailed statistics about page faults and cache behavior
