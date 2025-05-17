@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.8)
+# cmake_minimum_required(VERSION 3.8)
 
 project(Extreme-C-Programming)
 
 # add_subdirectory(ch01-essential-features)
 # add_subdirectory(ch02-compilation-and-linking)
 #add_subdirectory(ch03-object-files)
-add_subdirectory(ch04-process-memory-structure)
+# add_subdirectory(ch04-process-memory-structure)
 #add_subdirectory(ch05)
-# add_subdirectory(ch06-encapsulation-theory)
+add_subdirectory(ch06-oop-and-encapsulation)
 # add_subdirectory(ch07-composition-and-aggregation)
 #add_subdirectory(ch10)
 #add_subdirectory(ch11)
