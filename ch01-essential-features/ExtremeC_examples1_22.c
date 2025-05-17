@@ -1,4 +1,4 @@
-// File name: ExtremeC_exampels_chapter1_22.c
+// File name: ExtremeC_examples1_22.c
 // Description: Packed struct i.e. not padded then unaligned
 
 #include <stdio.h>

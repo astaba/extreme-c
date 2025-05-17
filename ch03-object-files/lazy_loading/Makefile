@@ -2,60 +2,62 @@
 # Dynamic Library for LAZY LOADING: ELF Shared Object Files
 # ==============================================================================
 # Compiler and linker flags
+.PHONY: all clean run
+.DELETE_ON_ERROR:
+
 CC = gcc
-CFLAGS = -c -Wall
+CFLAGS = -Wall
 LDFLAGS = -lm
 # Library path and file definitions
-PARENT=..
-LIB_ROOT = ./opt
-LIB_PATH = $(LIB_ROOT)/geometry
-LIB_NAME = geometry
-DYN_LIB = $(LIB_PATH)/lib$(LIB_NAME).so
+VPATH = ..
+RELATIVE_ROOT = ./opt
+DYNAMIC_LIB_NAME = geometry
+DYNAMIC_LIB_DIR = $(RELATIVE_ROOT)/$(DYNAMIC_LIB_NAME)
+DYNAMIC_LIB = $(DYNAMIC_LIB_DIR)/lib$(DYNAMIC_LIB_NAME).so
 # Header file
-HDR_F = $(PARENT)/ExtremeC_examples_chapter3_2_geometry.h
+HEADERS = ExtremeC_examples_chapter3_2_geometry.h
 # Source and executable definitions
-EXEC = ex3_4.out
-SRC = ExtremeC_examples_chapter3_2_trigon.c \
-      ExtremeC_examples_chapter3_2_2d.c \
-      ExtremeC_examples_chapter3_2_3d.c
-_SRC = $(subst ExtremeC_examples_chapter3_2_,,$(SRC))
+SOURCES = ExtremeC_examples_chapter3_4.c \
+		  ExtremeC_examples_chapter3_2_trigon.c \
+		  ExtremeC_examples_chapter3_2_2d.c \
+		  ExtremeC_examples_chapter3_2_3d.c
 # List of object files
-OBJS = $(_SRC:.c=.o)
-
-.PHONY: all clean run
+OBJECTS = $(subst .c,.o,$(SOURCES))
+DEPENDENCY_O = $(filter-out $(word 1, $(OBJECTS)),$(OBJECTS))
+# Executable file
+BINARY = $(subst .c,.out,$(word 1,$(SOURCES)))
 
 # Default target
-all: $(EXEC)
+all: $(BINARY)
 
 # NOTE: Link the final executable with -ldl for dynamic lazy loading
-$(EXEC): main.o $(DYN_LIB)
+$(BINARY): $(word 1, $(OBJECTS)) $(DYNAMIC_LIB)
 	$(CC) $< -ldl -o $@
 
 # NOTE: When building dynamic library to be lazy loaded by executable,
-# make sure to use the -l option to link to libraries
-# that could be required by the loading library at run-time.
-$(DYN_LIB): $(OBJS)
-	mkdir -p $(@D)
-	$(CC) -shared $^ $(LDFLAGS) -o $@
+# make sure to use the -l option to link to libraries that could be
+# required by the loading library at run-time.
+$(DYNAMIC_LIB): $(DEPENDENCY_O)
+	mkdir -p $(@D) && $(CC) -shared $^ -o $@ $(LDFLAGS) 
 
 # Compile temporary object files as Position Independent Code
-# for dynamic library
-$(word 1, $(OBJS)): $(PARENT)/$(word 1, $(SRC)) $(HDR_F)
-	$(CC) $(CFLAGS) $< -fPIC -o $@
-$(word 2, $(OBJS)): $(PARENT)/$(word 2, $(SRC)) $(HDR_F)
-	$(CC) $(CFLAGS) $< -fPIC -o $@
-$(word 3, $(OBJS)): $(PARENT)/$(word 3, $(SRC)) $(HDR_F)
-	$(CC) $(CFLAGS) $< -fPIC -o $@
+$(DEPENDENCY_O): %.o: $(VPATH)/%.c $(VPATH)/$(HEADERS)
+	$(CC) $(CFLAGS) -c $< -fPIC -o $@
 
 # Compile main relocatable object file
-main.o: $(PARENT)/ExtremeC_examples_chapter3_4.c $(HDR_F)
-	$(CC) $(CFLAGS) $< -o $@
+$(word 1, $(OBJECTS)): %.o: $(VPATH)/%.c $(VPATH)/$(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Run the executable
-run: $(EXEC)
-	./$(EXEC)
+run: $(BINARY)
+	./$(BINARY)
 
 # Clean up generated files
 clean:
-	rm -fv *.o $(EXEC)
-	rm -rfv $(LIB_ROOT)
+	rm -fv *.o $(BINARY)
+	@echo "You're about to clean $(RELATIVE_ROOT) ? [y/n]"; \
+	read ans; \
+	if [ "$$ans" = "y" ]; then \
+		rm -rv $(RELATIVE_ROOT); \
+	fi
+

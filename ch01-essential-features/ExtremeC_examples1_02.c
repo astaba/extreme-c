@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_2.c
-// Description: Example 1.2
+// File name: ExtremeC_examples1_02.c
+// Description: Defining a function like macro that accept arguments.
 
 #include <stdio.h>
 

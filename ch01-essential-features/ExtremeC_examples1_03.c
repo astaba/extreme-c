@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_3.c
-// Description: Example 1.3
+// File name: ExtremeC_examples1_03.c
+// Description: Using macro to create a Domain Specific Language (DSL)
 
 #include <stdio.h>
 #include <stdlib.h>

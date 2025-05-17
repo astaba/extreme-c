@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_1.c
-// Description: Example 1.1
+// File name: ExtremeC_examples1_01.c
+// Description: Defining a macro
 
 #include <stdio.h>
 #include <stdlib.h>

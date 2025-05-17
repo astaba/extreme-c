@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_12.c
-// Description: Example 1.12
+// File name: ExtremeC_examples1_12.c
+// Description: Using pointer arithmetic to iterate over an array
 
 #include <stdio.h>
 
@@ -7,11 +7,6 @@
 
 int main(int argc, char **argv) {
   int arr[SIZE] = {9, 22, 30, 23, 18};
-  /* arr[0] = 9;
-  arr[1] = 22;
-  arr[2] = 30;
-  arr[3] = 23;
-  arr[4] = 18; */
 
   //  int* ptr = &arr[0];
   int *ptr = arr;
@@ -24,9 +19,9 @@ int main(int argc, char **argv) {
      ptr++;
    } */
 
-  do {
-    printf("%d\n", *ptr);
-  } while (ptr++ != &arr[SIZE - 1]);
+  while (ptr != &arr[SIZE]) {
+    printf("%d\n", *ptr++);
+  }
 
   return 0;
 }

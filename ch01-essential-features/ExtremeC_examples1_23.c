@@ -1,4 +1,4 @@
-// File name: ExtremeC_exampels_chapter1_23.c
+// File name: ExtremeC_examples1_23.c
 // Description: Example 1.23
 
 typedef struct point {

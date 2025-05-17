@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_16.c
-// Description: Dangling pointers
+// File name: ExtremeC_examples1_16.c
+// Description: Fixing Dangling pointers
 
 #include <stdio.h>
 #include <stdlib.h>

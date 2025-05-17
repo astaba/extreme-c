@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_10.c
-// Description: Example 1.10
+// File name: ExtremeC_examples1_10.c
+// Description: Pointer Arithmetic
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_11.c
-// Description: Example 1.11
+// File name: ExtremeC_examples1_11.c
+// Description: Iterating over an array without pointer arithmetic
 
 #include <stdio.h>
 

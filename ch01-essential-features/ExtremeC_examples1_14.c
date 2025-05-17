@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_14.c
-// Description: Example 1.14: Generic pointers.
+// File name: ExtremeC_examples1_14.c
+// Description: Generic pointers to create a generic function.
 
 #include <stdio.h>
 #include <stdlib.h>

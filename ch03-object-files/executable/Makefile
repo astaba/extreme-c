@@ -1,40 +1,37 @@
 # ==============================================================================
 # ELF Relocatble Object Files vs ELF Executable Object Files
-#
 # Content Comparison
-#
 # ==============================================================================
+.PHONY: all clean read
+.DELETE_ON_ERROR:
+
 # Compiler and linker flags
 CC = gcc
-CFLAGS = -c
-EXEC = ex3_1.out
+VPATH = ..
 
-PARENT=..
-# List of object files
-OBJS = main.o funcs.o
-
-.PHONY: all clean read
+SOURCES = ExtremeC_examples_chapter3_1.c \
+		  ExtremeC_examples_chapter3_1_funcs.c
+OBJECTS = $(subst .c,.o,$(SOURCES))
+BINARY = $(subst .c,.out,$(word 1,$(SOURCES)))
 
 # Default target
-all: $(EXEC)
+all: $(BINARY)
 
 # Link the final executable
-$(EXEC): $(OBJS)
-	$(CC) $^ -o $@
+$(BINARY): $(OBJECTS)
+	$(CC) $(CFLAGS) $(CPPLAGS) $(LDFLAGS) $^ -o $@
 
 # Compile temporary object files
-main.o: $(PARENT)/ExtremeC_examples_chapter3_1.c
-	$(CC) $(CFLAGS) $< -o $@
-funcs.o: $(PARENT)/ExtremeC_examples_chapter3_1_funcs.c
-	$(CC) $(CFLAGS) $< -o $@
+%.o: $(VPATH)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-read: $(EXEC) $(OBJS)
-	readelf -hS main.o > main_hS.txt
-	readelf -hS funcs.o > funcs_hS.txt
-	readelf -s main.o > main_s.txt
-	readelf -s funcs.o > funcs_s.txt
-	readelf -s $(EXEC) > ex_s.txt
+read: $(BINARY)
+	readelf -hS $(word 1,$(OBJECTS)) > main_hS.txt
+	readelf -hS $(word 2,$(OBJECTS)) > funcs_hS.txt
+	readelf -s $(word 1,$(OBJECTS)) > main_s.txt
+	readelf -s $(word 2,$(OBJECTS)) > funcs_s.txt
+	readelf -s $(BINARY) > ex_s.txt
 
 # Clean up generated files
 clean:
-	rm -fv *.o $(EXEC) *.txt
+	@rm -fv *.o $(BINARY) *.txt

@@ -1,4 +1,4 @@
-// File name: ExtremeC_exampels_chapter1_21.c
+// File name: ExtremeC_examples1_21.c
 // Description: Memory layout
 
 #include <stdio.h>

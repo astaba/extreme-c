@@ -1,5 +1,5 @@
-// File name: ExtremeC_exampels_chapter1_6.c
-// Description: Example 1.6
+// File name: ExtremeC_examples1_06.c
+// Description: Using variadic macro to repeat instructions.
 
 #include <stdio.h>
 #include <stdlib.h>

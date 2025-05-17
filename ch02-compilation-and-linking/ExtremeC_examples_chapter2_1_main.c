@@ -2,12 +2,13 @@
 // Description: Contains the 'main' function
 
 #include <stdio.h>
-
 #include "ExtremeC_examples_chapter2_1.h"
+
+#define LENGTH 5
 
 int main(int argc, char** argv) {
   // Array declaration
-  int array[5];
+  int array[LENGTH];
 
   // Filling the array
   array[0] = 10;
@@ -17,7 +18,7 @@ int main(int argc, char** argv) {
   array[4] = 9;
 
   // Calculating the averages using the 'avg' function
-  double average = avg(array, 5, NORMAL);
+  double average = avg(array, LENGTH, NORMAL);
   printf("The average: %g\n", average);
 
   average = avg(array, 5, SQUARED);

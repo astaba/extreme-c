@@ -1,4 +1,4 @@
-// File name: ExtremeC_exampels_chapter1_20.c
+// File name: ExtremeC_examples1_20.c
 // Description: Define type aliases for function pointers
 
 #include <stdio.h>

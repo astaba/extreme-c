@@ -1,10 +1,10 @@
-// File name: ExtremeC_exampels_chapter1_7.c
-// Description: Example 1.7
+// File name: ExtremeC_examples1_07.c
+// Description: Conditional compilation.
 
-#include "ExtremeC_examples_chapter1_8.h"
+#include "ExtremeC_examples1_08.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "ExtremeC_examples_chapter1_8.h"
+#include "ExtremeC_examples1_08.h" // Test header guard from header file
 
 #define INCREMENT
 

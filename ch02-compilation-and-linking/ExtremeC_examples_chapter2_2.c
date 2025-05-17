@@ -1,5 +1,5 @@
 // File name: ExtremeC_examples_chapter2_2.c
-// Description: A simple progrm that we are going to dump its AST using clang!
+// Description: A simple program used to dump the AST using clang!
 
 int main() {
   int var1 = 1;

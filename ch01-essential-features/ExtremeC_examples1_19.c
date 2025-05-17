@@ -1,4 +1,4 @@
-// File name: ExtremeC_exampels_chapter1_19.c
+// File name: ExtremeC_examples1_19.c
 // Description: Function pointers
 
 #include <stdio.h>

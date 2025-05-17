@@ -4,6 +4,7 @@
 // 'header guard' statement technique
 #ifndef EXTREMEC_EXAMPLES_CHAPTER_2_1_H
 #define EXTREMEC_EXAMPLES_CHAPTER_2_1_H
+#include <stdlib.h>
 
 // enum declaration and definition cannot be separated
 typedef enum {
@@ -11,8 +12,7 @@ typedef enum {
   NORMAL,
   SQUARED
 } average_type_t;
-
 // 'forward declaration' of the avg function
-double avg(int*, int, average_type_t);
+double avg(int*, size_t, average_type_t);
 
 #endif

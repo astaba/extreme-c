@@ -1,5 +1,6 @@
-// File name: ExtremeC_exampels_chapter1_5.c
-// Description: Example 1.5
+// File name: ExtremeC_examples1_05.c
+// Description: Variadic macros to generate a generic error message making sure
+// a command line arguments and options are properly formated.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +16,8 @@ int main(int argc, char *argv[]) {
   }
 
   if (argc > 2 && strcmp(argv[2], "--norm") != 0) {
-    LOG_ERROR("'%s' is invalid parameter at index %d for version %s\n",
-              argv[2], 2, VERSION)
+    LOG_ERROR("'%s' is invalid parameter at index %d for version %s\n", argv[2],
+              2, VERSION)
   }
 
   return EXIT_SUCCESS;

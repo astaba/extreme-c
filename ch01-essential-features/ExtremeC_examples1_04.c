@@ -1,5 +1,7 @@
-// File name: ExtremeC_exampels_chapter1_4.c
-// Description: Example 1.4
+// File name: ExtremeC_examples1_04.c
+// Description: Introducing the # and ## operators regarding macro parameters.
+// #: stringuifies the parameter with the specific quotation marks.
+// ##: concatenates the parameter.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +12,7 @@
   strcpy(X##_cmd, #X);
 
 int main(void) {
-  CMD(copy);
+  CMD(copy)
   CMD(paste)
   CMD(cut)
 
