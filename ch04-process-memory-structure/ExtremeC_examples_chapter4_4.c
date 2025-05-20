@@ -1,4 +1,4 @@
-// File name: ExtremeC_exampels_chapter4_4.c
+// File name: ExtremeC_examples_chapter4_4.c
 // Description: Example 4.4
 
 int     x = 33;            // 0x00000021

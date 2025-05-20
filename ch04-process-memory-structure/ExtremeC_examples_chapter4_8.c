@@ -1,5 +1,6 @@
 // File name: ExtremeC_exampels_chapter4_8.c
-// Description: Example 4.8
+// Description: Dynamic memory allocation. Pointer variable, while allocated on
+// the stack frame of the main() function, pointed out to heap memory adresse.
 
 #include <stdio.h>  // For printf function
 #include <stdlib.h> // For malloc and free function

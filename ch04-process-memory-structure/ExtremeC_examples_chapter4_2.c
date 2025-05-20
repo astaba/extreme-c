@@ -1,4 +1,4 @@
-// File name: ExtremeC_exampels_chapter4_2.c
+// File name: ExtremeC_examples_chapter4_2.c
 // Description: Example 4.2
 
 int global_var1;
